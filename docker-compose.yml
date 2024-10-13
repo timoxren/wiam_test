@@ -1,0 +1,33 @@
+services:
+    app:
+        image: timoxren/php${PHP_VERSION}-unit:1.0.1
+        volumes:
+            - ./app.json:/docker-entrypoint.d/app.json
+            - ~/.composer-docker/cache:/root/.composer/cache:delegated
+            - ./:/app
+            - /var/log/unit/access.log
+        ports:
+            - 80:80
+        environment:
+            XDEBUG_MODE: debug
+            XDEBUG_CONFIG: "client_host=host.docker.internal"
+            XDEBUG_TRIGGER: 'yes'
+            PHP_IDE_CONFIG: 'serverName=wiam_test'
+            YII_ENV_DEV: true
+        extra_hosts:
+            - host.docker.internal:${HOST_IP:-172.17.0.1}
+
+    postgres:
+        image: postgres:9
+        volumes:
+            - wiam_test_db:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+        environment:
+            - PGDATA:/var/lib/postgresql/data/pgdata
+            - POSTGRES_PASSWORD=123456
+
+
+volumes:
+    wiam_test_db:
+        external: true
